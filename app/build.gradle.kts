@@ -86,6 +86,16 @@ dependencies {
     // Optional: ViewModel support for navigation
     implementation ("androidx.hilt:hilt-navigation-compose:1.0.0")
 
+    // Animated splash screen
+    implementation("androidx.core:core-splashscreen:1.0.0")
+    implementation ("com.airbnb.android:lottie-compose:6.0.0")
+
+    implementation("com.google.accompanist:accompanist-pager:0.30.1")
+
+
+    implementation("androidx.compose:compose-bom:2023.09.01")
+
+    implementation("com.google.accompanist:accompanist-pager:0.30.1")
     // Lifecycle and ViewModel
     implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.0")
 }

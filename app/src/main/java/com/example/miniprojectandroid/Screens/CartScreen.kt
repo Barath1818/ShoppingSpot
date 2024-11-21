@@ -4,6 +4,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,12 +22,7 @@ import com.example.miniprojectandroid.viewmodel.ProductViewModel
 @Composable
 fun CartScreen(viewModel: ProductViewModel, navController: NavController) {
     val cartItems by viewModel.cartItems.collectAsState()
-    var grandTotal by remember { mutableStateOf(0.0) }
-
-    // Calculate the grand total whenever cartItems change
-    LaunchedEffect(cartItems) {
-        grandTotal = cartItems.sumOf { it.totalPrice }
-    }
+    val grandTotal by remember { derivedStateOf { cartItems.sumOf { it.totalPrice } } }
 
     Column(
         modifier = Modifier
@@ -38,7 +35,7 @@ fun CartScreen(viewModel: ProductViewModel, navController: NavController) {
         ) {
             IconButton(onClick = { navController.navigateUp() }) {
                 Icon(
-                    painter = painterResource(id = R.drawable.baseline_arrow_back_24),
+                    Icons.Default.ArrowBack,
                     contentDescription = "Back"
                 )
             }
@@ -51,14 +48,15 @@ fun CartScreen(viewModel: ProductViewModel, navController: NavController) {
             LazyColumn(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
-            )
-            {
+            ) {
                 items(cartItems) { cartItem ->
                     CartItemRow(
                         cartItem = cartItem,
                         onQuantityChange = { newQuantity ->
-                            viewModel.updateCartItemQuantity(cartItem, newQuantity
-                            )
+                            viewModel.updateCartItemQuantity(cartItem, newQuantity)
+                        },
+                        onDelete = {
+                            viewModel.removeCartItem(cartItem)
                         }
                     )
                 }
@@ -74,25 +72,29 @@ fun CartScreen(viewModel: ProductViewModel, navController: NavController) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Buy Now Button
             Button(
-                onClick = { },
+                onClick = {
+                    navController.navigate("deliveryScreen")
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
             ) {
                 Text("Buy Now")
             }
-        }
-        else
-        {
+
+        } else {
             Text("Your cart is empty", style = MaterialTheme.typography.bodyLarge)
         }
     }
 }
 
 @Composable
-fun CartItemRow(cartItem: CartItem, onQuantityChange: (Int) -> Unit) {
+fun CartItemRow(
+    cartItem: CartItem,
+    onQuantityChange: (Int) -> Unit,
+    onDelete: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -106,19 +108,19 @@ fun CartItemRow(cartItem: CartItem, onQuantityChange: (Int) -> Unit) {
         )
         Spacer(modifier = Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = cartItem.product.title,
-                style = MaterialTheme.typography.bodyLarge)
+            Text(
+                text = cartItem.product.title,
+                style = MaterialTheme.typography.bodyLarge
+            )
             Text(
                 text = "${cartItem.product.price} USD",
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.Gray
             )
             Row(verticalAlignment = Alignment.CenterVertically) {
-                // Decrease quantity button
                 IconButton(
                     onClick = {
-                        if (cartItem.quantity > 1)
-                            onQuantityChange(cartItem.quantity - 1)
+                        if (cartItem.quantity > 1) onQuantityChange(cartItem.quantity - 1)
                     }
                 ) {
                     Icon(
@@ -126,9 +128,10 @@ fun CartItemRow(cartItem: CartItem, onQuantityChange: (Int) -> Unit) {
                         contentDescription = "Decrease quantity"
                     )
                 }
-                // Display quantity
-                Text(text = "Quantity: ${cartItem.quantity}", style = MaterialTheme.typography.bodyMedium)
-                // Increase quantity button
+                Text(
+                    text = "Quantity: ${cartItem.quantity}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
                 IconButton(
                     onClick = { onQuantityChange(cartItem.quantity + 1) }
                 ) {
@@ -144,5 +147,20 @@ fun CartItemRow(cartItem: CartItem, onQuantityChange: (Int) -> Unit) {
                 color = Color.Black
             )
         }
+
+        // Delete Button
+        IconButton(
+            onClick = onDelete,
+            modifier = Modifier
+                .padding(start = 8.dp)
+                .size(80.dp)
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.icons_delete),
+                contentDescription = "Delete Item",
+                tint = Color.Red
+            )
+        }
     }
 }
+

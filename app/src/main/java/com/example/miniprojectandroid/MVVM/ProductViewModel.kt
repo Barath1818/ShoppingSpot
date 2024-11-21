@@ -33,6 +33,14 @@ class ProductViewModel(private val repository: ProductRepository) : ViewModel() 
     val cartItems: StateFlow<List<CartItem>> = _cartItems
 
 
+    private val _deliveryAddress = MutableStateFlow("")
+    val deliveryAddress: StateFlow<String> = _deliveryAddress
+
+    private val _deliveryInstructions = MutableStateFlow("")
+    val deliveryInstructions: StateFlow<String> = _deliveryInstructions
+
+
+
     val filteredProducts = combine(_productList, _searchQuery)
     { products, query ->
         if (query.isEmpty()) products
@@ -67,29 +75,40 @@ class ProductViewModel(private val repository: ProductRepository) : ViewModel() 
     }
 
 
-    // Function to reset the message state after showing the toast
+
     fun resetAddToCartMessage() {
         _showAddToCartMessage.value = false
     }
 
     fun addToCart(
         product: ProductItem,
-                  quantity: Int,
-                  totalPrice: Double
+        quantity: Int,
+        totalPrice: Double
     ) {
-        _cartItems.update {
-            cart ->
-            val updatedCart = cart.toMutableList()
-            updatedCart.add(
-                CartItem(
-                    product,
-                    quantity,
-                    totalPrice)
-            )
-            updatedCart
+        _cartItems.update { cart ->
+
+            val existingItemIndex = cart.indexOfFirst {
+                it.product.id == product.id
+            }
+            if (existingItemIndex != -1) {
+
+                cart.mapIndexed { index, cartItem ->
+                    if (index == existingItemIndex) {
+                        cartItem.copy(
+                            quantity = cartItem.quantity + quantity,
+                            totalPrice = cartItem.totalPrice + totalPrice
+                        )
+                    }
+                    else cartItem
+                }
+            } else
+            {
+
+                cart + CartItem(product, quantity, totalPrice)
+            }
         }
 
-        // Show the toast message (by setting the state to true)
+        // Show the "added to cart" message
         _showAddToCartMessage.value = true
     }
 
@@ -107,5 +126,21 @@ class ProductViewModel(private val repository: ProductRepository) : ViewModel() 
                 else it }
         }
     }
+
+    fun removeCartItem(cartItem: CartItem) {
+        _cartItems.value = _cartItems.value.toMutableList().apply {
+            remove(cartItem)
+        }
+    }
+
+    // Setters to update address and instructions
+    fun setDeliveryAddress(address: String) {
+        _deliveryAddress.value = address
+    }
+
+    fun setDeliveryInstructions(instructions: String) {
+        _deliveryInstructions.value = instructions
+    }
+
 
 }

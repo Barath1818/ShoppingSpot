@@ -1,5 +1,6 @@
 package com.example.miniprojectandroid.ui
 
+import android.app.Activity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -8,6 +9,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -34,13 +37,19 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.painterResource
 import com.example.miniprojectandroid.R
-
+import androidx.compose.material3.*
+import android.content.Context
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun ProductListScreen(viewModel: ProductViewModel, navController: NavController) {
     val products by viewModel.filteredProducts.collectAsState(initial = emptyList())
     val error by viewModel.errorMessage.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
+
 
     Column(
         modifier = Modifier
@@ -131,8 +140,9 @@ fun ProductListScreen(viewModel: ProductViewModel, navController: NavController)
         error.takeIf { it.isNotEmpty() }?.let {
             Text(text = it, color = MaterialTheme.colorScheme.error)
         }
+
     }
-}
+    }
 
 // Product card for vertical scrolling product list
 @Composable

@@ -15,6 +15,12 @@ import com.example.miniprojectandroid.repository.ProductRepository
 import com.example.miniprojectandroid.viewmodel.ProductViewModel
 import com.example.miniprojectandroid.MVVM.ProductViewModelFactory
 import com.example.miniprojectandroid.Screens.CartScreen
+import com.example.miniprojectandroid.Screens.DeliveryScreen
+import com.example.miniprojectandroid.Screens.OnboardingScreen
+import com.example.miniprojectandroid.Screens.OrderScreen
+import com.example.miniprojectandroid.Screens.OrderSuccessScreen
+import com.example.miniprojectandroid.Screens.PaymentScreen
+import com.example.miniprojectandroid.Screens.SplashScreen
 
 
 class MainActivity : ComponentActivity() {
@@ -32,7 +38,13 @@ fun MainScreen() {
     val repository = ProductRepository()  // Initialize repository
     val viewModel: ProductViewModel = viewModel(factory = ProductViewModelFactory(repository))
 
-    NavHost(navController, startDestination = "productList") {
+    NavHost(navController, startDestination = "SplashScreen") {
+        composable("SplashScreen") {
+            SplashScreen(navController = navController)
+        }
+        composable("OnboardScreen") {
+            OnboardingScreen(navController = navController)
+        }
         composable("productList") {
             ProductListScreen(viewModel = viewModel, navController = navController)
         }
@@ -44,6 +56,18 @@ fun MainScreen() {
         // Move CartScreen composable outside of productDetail
         composable("CartScreen") {
             CartScreen(viewModel = viewModel, navController = navController)
+        }
+        composable("deliveryScreen") {
+            DeliveryScreen(viewModel = viewModel, navController = navController)
+        }
+        composable("paymentScreen") {
+            PaymentScreen(viewModel = viewModel, navController = navController)
+        }
+        composable("PlacingOrderScreen") {
+            OrderScreen(viewModel = viewModel,navController = navController)
+        }
+        composable("OrderSuccessScreen") {
+            OrderSuccessScreen(navController = navController)
         }
     }
 }
